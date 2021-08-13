@@ -39,4 +39,9 @@ describe('Ticket Entity', () => {
     sut.createdAt = makeDateWith24HoursLate()
     expect(sut.isLate()).toBeTruthy()
   })
+  test('should return false if ticket is not late', () => {
+    const { sut } = makeSut()
+    sut.createdAt = Date.now()
+    expect(sut.isLate()).toBeFalsy()
+  })
 })
