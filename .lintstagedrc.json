@@ -1,6 +1,6 @@
 {
   "*.js": [
-    "lint:fix",
+    "yarn lint:fix",
     "test"
   ]
 }
