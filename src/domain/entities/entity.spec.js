@@ -1,8 +1,4 @@
-class Entity {
-  constructor ({ id = undefined }) {
-    this.id = id
-  }
-}
+const Entity = require('./entity')
 
 describe('Entity', () => {
   test('should contain id undefined or string', () => {
