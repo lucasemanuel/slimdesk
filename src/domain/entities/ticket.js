@@ -1,7 +1,7 @@
 class TicketEntity {
-  constructor ({ subject, body, createdAt, status }) {
+  constructor ({ id, subject, body, createdAt, status }) {
     this.slaHours = 24
-    Object.assign(this, { subject, body, createdAt, status })
+    Object.assign(this, { id, subject, body, createdAt, status })
   }
 
   isLate () {

@@ -4,6 +4,7 @@ const makeSut = () => {
   const date = new Date()
 
   const sut = new TicketEntity({
+    id: 'any_id',
     subject: 'any_subject',
     body: 'any_body',
     createdAt: date,
@@ -23,16 +24,25 @@ const makeDateWith24HoursLate = () => {
 }
 
 describe('Ticket Entity', () => {
-  test('should contain subject, body, criation date and status', () => {
-    const { sut, date } = makeSut()
+  test('should contain id, subject, body, criation date and status', () => {
+    const { sut } = makeSut()
 
-    expect(sut).toEqual({
-      subject: 'any_subject',
-      body: 'any_body',
-      createdAt: date,
-      status: 'any_status',
-      slaHours: 24
-    })
+    expect(sut).toEqual(expect.objectContaining({
+      id: expect.any(String),
+      subject: expect.any(String),
+      body: expect.any(String),
+      createdAt: expect.any(Date),
+      status: expect.any(String)
+    }))
+    // expect(sut).toBeCalledWith(
+    //   expect.objectContaining({
+    //   subject: 'any_subject',
+    //   body: 'any_body',
+    //   createdAt: date,
+    //   status: 'any_status',
+    //   slaHours: 24
+    // })
+    // )
   })
   test('should return true if ticket is late', () => {
     const { sut } = makeSut()
