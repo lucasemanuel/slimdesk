@@ -1,7 +1,10 @@
-class TicketEntity {
+const Entity = require('./entity')
+
+class TicketEntity extends Entity {
   constructor ({ id, subject, body, createdAt, status }) {
+    super({ id })
+    Object.assign(this, { subject, body, createdAt, status })
     this.slaHours = 24
-    Object.assign(this, { id, subject, body, createdAt, status })
   }
 
   isLate () {
