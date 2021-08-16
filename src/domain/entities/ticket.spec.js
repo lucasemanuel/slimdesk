@@ -34,15 +34,6 @@ describe('Ticket Entity', () => {
       createdAt: expect.any(Date),
       status: expect.any(String)
     }))
-    // expect(sut).toBeCalledWith(
-    //   expect.objectContaining({
-    //   subject: 'any_subject',
-    //   body: 'any_body',
-    //   createdAt: date,
-    //   status: 'any_status',
-    //   slaHours: 24
-    // })
-    // )
   })
   test('should return true if ticket is late', () => {
     const { sut } = makeSut()
