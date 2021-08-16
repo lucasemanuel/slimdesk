@@ -5,10 +5,10 @@ class TicketEntity {
   }
 
   isLate () {
-    const currentAt = Date.now()
-    const millisecondsOfLate = 1000 * 60 * 60 * this.slaHours
+    const currentDate = Date.now()
+    const millisecondsLate = 1000 * 60 * 60 * this.slaHours
 
-    return (this.createdAt.valueOf() + millisecondsOfLate) <= currentAt
+    return (this.createdAt.valueOf() + millisecondsLate) <= currentDate
   }
 }
 
