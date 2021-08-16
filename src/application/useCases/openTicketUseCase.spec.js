@@ -1,7 +1,7 @@
 const { InvalidParamError, MissingParamError } = require('../../utils/errors')
 
 class OpenTicketUseCase {
-  constructor ({ ticketFactory }) {
+  constructor ({ ticketFactory } = {}) {
     Object.assign(this, { ticketFactory })
   }
 
@@ -17,6 +17,16 @@ class OpenTicketUseCase {
       throw new MissingParamError('body')
     }
   }
+}
+
+const makeTicketFactoryWithErrorSpy = () => {
+  class TicketFactoryWithErrorSpy {
+    create () {
+      throw new Error()
+    }
+  }
+
+  return new TicketFactoryWithErrorSpy()
 }
 
 const makeTicketFactorySpy = () => {
@@ -62,5 +72,17 @@ describe('Open Ticket Use Case', () => {
     const promise = sut.execute({ subject: 'any_subject', body: 'any_body' })
     expect(promise).rejects.toThrow(new InvalidParamError('ticketRepository'))
   })
-  test.todo('should throw an error if dependencies throws')
+  test('should throw an error if dependencies throws', async () => {
+    const suts = [
+      new OpenTicketUseCase(),
+      new OpenTicketUseCase({}),
+      new OpenTicketUseCase({ ticketFactory: {} }),
+      new OpenTicketUseCase({ ticketFactory: makeTicketFactoryWithErrorSpy() })
+    ]
+
+    for (const sut of suts) {
+      const promise = sut.execute({ subject: 'any_subject', body: 'any_body' })
+      await expect(promise).rejects.toThrow()
+    }
+  })
 })
