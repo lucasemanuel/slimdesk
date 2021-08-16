@@ -1,6 +1,9 @@
-class UserEntity {
+const Entity = require('./entity')
+
+class UserEntity extends Entity {
   constructor ({ id, name, email, phone, password, isActive = true }) {
-    Object.assign(this, { id, name, email, phone, password, isActive })
+    super({ id })
+    Object.assign(this, { name, email, phone, password, isActive })
   }
 }
 
