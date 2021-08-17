@@ -1,4 +1,4 @@
-const { InvalidParamError, MissingParamError } = require('../../utils/errors')
+const { MissingParamError } = require('../../utils/errors')
 
 class OpenTicketUseCase {
   constructor ({ ticketFactory, distributorTicketsService } = {}) {
@@ -39,6 +39,16 @@ const makeTicketFactorySpy = () => {
   }
 
   return new TicketFactorySpy()
+}
+
+const makeDistributorTicketsServiceWithErrorSpy = () => {
+  class DistributorTicketsServiceWithErrorSpy {
+    distribute () {
+      throw new Error()
+    }
+  }
+
+  return new DistributorTicketsServiceWithErrorSpy()
 }
 
 const makeDistributorTicketsServiceSpy = () => {
@@ -121,19 +131,22 @@ describe('Open Ticket Use Case', () => {
       }
     )
   })
-  test.skip('should throw an error if TicketRepository is invalid', () => {
-    const sut = new OpenTicketUseCase()
-    const promise = sut.execute({ subject: 'any_subject', body: 'any_body' })
-    expect(promise).rejects.toThrow(new InvalidParamError('ticketRepository'))
-  })
   test('should throw an error if dependencies throws', async () => {
+    const ticketFactorySpy = makeTicketFactorySpy()
     const suts = [
       new OpenTicketUseCase(),
       new OpenTicketUseCase({}),
       new OpenTicketUseCase({ ticketFactory: {} }),
-      new OpenTicketUseCase({ ticketFactory: makeTicketFactoryWithErrorSpy() })
+      new OpenTicketUseCase({ ticketFactory: makeTicketFactoryWithErrorSpy() }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy,
+        distributorTicketsService: {}
+      }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy,
+        distributorTicketsService: makeDistributorTicketsServiceWithErrorSpy()
+      })
     ]
-
     for (const sut of suts) {
       const promise = sut.execute({ subject: 'any_subject', body: 'any_body' })
       await expect(promise).rejects.toThrow()
