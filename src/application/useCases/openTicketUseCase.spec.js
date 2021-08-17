@@ -1,14 +1,19 @@
 const { MissingParamError } = require('../../utils/errors')
 
 class OpenTicketUseCase {
-  constructor ({ ticketFactory, distributorTicketsService } = {}) {
-    Object.assign(this, { ticketFactory, distributorTicketsService })
+  constructor ({ ticketFactory, distributorTicketsService, ticketRepository } = {}) {
+    Object.assign(this, {
+      ticketFactory,
+      distributorTicketsService,
+      ticketRepository
+    })
   }
 
   async execute ({ body, subject }) {
     this.validate({ body, subject })
-    this.ticketFactory.create({ body, subject })
-    this.distributorTicketsService.distribute()
+    const ticket = this.ticketFactory.create({ body, subject })
+    const technician = this.distributorTicketsService.distribute()
+    this.ticketRepository.insert({ ticketEntity: ticket, userEntity: technician })
   }
 
   validate ({ body, subject }) {
@@ -35,6 +40,8 @@ const makeTicketFactorySpy = () => {
     create ({ subject, body }) {
       this.subject = subject
       this.body = body
+
+      return { subject, body }
     }
   }
 
@@ -69,24 +76,41 @@ const makeDistributorTicketsServiceSpy = () => {
           this.technician = tech
         }
       }
+
+      return this.technician
     }
   }
 
   return new DistributorTicketsServiceSpy()
 }
 
+const makeTicketRepositorySpy = () => {
+  class TicketRepositorySpy {
+    insert ({ ticketEntity, userEntity }) {
+      this.ticket = ticketEntity
+      this.technician = userEntity
+    }
+  }
+
+  return new TicketRepositorySpy()
+}
+
 const makeSut = () => {
   const ticketFactorySpy = makeTicketFactorySpy()
   const distributorTicketsServiceSpy = makeDistributorTicketsServiceSpy()
+  const ticketRepositorySpy = makeTicketRepositorySpy()
+
   const sut = new OpenTicketUseCase({
+    distributorTicketsService: distributorTicketsServiceSpy,
     ticketFactory: ticketFactorySpy,
-    distributorTicketsService: distributorTicketsServiceSpy
+    ticketRepository: ticketRepositorySpy
   })
 
   return {
     distributorTicketsServiceSpy,
     sut,
-    ticketFactorySpy
+    ticketFactorySpy,
+    ticketRepositorySpy
   }
 }
 
@@ -130,6 +154,25 @@ describe('Open Ticket Use Case', () => {
         openTickets: 4
       }
     )
+  })
+  test('should call TicketRepository for store the ticket with correct params', async () => {
+    const { sut, distributorTicketsServiceSpy, ticketRepositorySpy } = makeSut()
+    distributorTicketsServiceSpy.technicians = [
+      {
+        name: 'technician_1',
+        openTickets: 1
+      },
+      {
+        name: 'technician_2',
+        openTickets: 3
+      }
+    ]
+    await sut.execute({ subject: 'any_subject', body: 'any_body' })
+    expect(ticketRepositorySpy.technician).toEqual({
+      name: 'technician_2',
+      openTickets: 3
+    })
+    expect(ticketRepositorySpy.ticket).toEqual({ subject: 'any_subject', body: 'any_body' })
   })
   test('should throw an error if dependencies throws', async () => {
     const ticketFactorySpy = makeTicketFactorySpy()
