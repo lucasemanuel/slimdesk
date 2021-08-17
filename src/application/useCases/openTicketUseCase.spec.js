@@ -95,6 +95,15 @@ const makeTicketRepositorySpy = () => {
 
   return new TicketRepositorySpy()
 }
+const makeTicketRepositoryWithErrorSpy = () => {
+  class TicketRepositoryWithErrorSpy {
+    insert () {
+      throw new Error()
+    }
+  }
+
+  return new TicketRepositoryWithErrorSpy()
+}
 
 const makeSut = () => {
   const ticketFactorySpy = makeTicketFactorySpy()
@@ -182,11 +191,15 @@ describe('Open Ticket Use Case', () => {
   })
   test('should throw an error if dependencies throws', async () => {
     const ticketFactorySpy = makeTicketFactorySpy()
+    const distributorTicketsServiceSpy = makeDistributorTicketsServiceSpy()
     const suts = [
       new OpenTicketUseCase(),
       new OpenTicketUseCase({}),
       new OpenTicketUseCase({ ticketFactory: {} }),
       new OpenTicketUseCase({ ticketFactory: makeTicketFactoryWithErrorSpy() }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy
+      }),
       new OpenTicketUseCase({
         ticketFactory: ticketFactorySpy,
         distributorTicketsService: {}
@@ -194,6 +207,20 @@ describe('Open Ticket Use Case', () => {
       new OpenTicketUseCase({
         ticketFactory: ticketFactorySpy,
         distributorTicketsService: makeDistributorTicketsServiceWithErrorSpy()
+      }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy,
+        distributorTicketsService: distributorTicketsServiceSpy
+      }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy,
+        distributorTicketsService: distributorTicketsServiceSpy,
+        ticketRepository: {}
+      }),
+      new OpenTicketUseCase({
+        ticketFactory: ticketFactorySpy,
+        distributorTicketsService: distributorTicketsServiceSpy,
+        ticketRepository: makeTicketRepositoryWithErrorSpy()
       })
     ]
     for (const sut of suts) {
