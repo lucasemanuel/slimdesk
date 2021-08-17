@@ -14,6 +14,7 @@ class OpenTicketUseCase {
     const ticket = this.ticketFactory.create({ body, subject })
     const technician = this.distributorTicketsService.distribute()
     this.ticketRepository.insert({ ticketEntity: ticket, userEntity: technician })
+    return ticket
   }
 
   validate ({ body, subject }) {
@@ -173,6 +174,11 @@ describe('Open Ticket Use Case', () => {
       openTickets: 3
     })
     expect(ticketRepositorySpy.ticket).toEqual({ subject: 'any_subject', body: 'any_body' })
+  })
+  test('should return ticket', async () => {
+    const { sut } = makeSut()
+    const ticket = await sut.execute({ subject: 'any_subject', body: 'any_body' })
+    expect(ticket).toBeTruthy()
   })
   test('should throw an error if dependencies throws', async () => {
     const ticketFactorySpy = makeTicketFactorySpy()
