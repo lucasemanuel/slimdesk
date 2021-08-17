@@ -1,13 +1,14 @@
 const { InvalidParamError, MissingParamError } = require('../../utils/errors')
 
 class OpenTicketUseCase {
-  constructor ({ ticketFactory } = {}) {
-    Object.assign(this, { ticketFactory })
+  constructor ({ ticketFactory, distributorTicketsService } = {}) {
+    Object.assign(this, { ticketFactory, distributorTicketsService })
   }
 
   async execute ({ body, subject }) {
     this.validate({ body, subject })
     this.ticketFactory.create({ body, subject })
+    this.distributorTicketsService.distribute()
   }
 
   validate ({ body, subject }) {
@@ -40,11 +41,40 @@ const makeTicketFactorySpy = () => {
   return new TicketFactorySpy()
 }
 
+const makeDistributorTicketsServiceSpy = () => {
+  class DistributorTicketsServiceSpy {
+    constructor () {
+      this.technicians = [
+        {
+          name: 'technician_1',
+          openTickets: 3
+        }
+      ]
+    }
+
+    distribute () {
+      this.technician = this.technicians[0]
+      for (const tech of this.technicians) {
+        if (tech.openTickets > this.technician.openTickets) {
+          this.technician = tech
+        }
+      }
+    }
+  }
+
+  return new DistributorTicketsServiceSpy()
+}
+
 const makeSut = () => {
   const ticketFactorySpy = makeTicketFactorySpy()
-  const sut = new OpenTicketUseCase({ ticketFactory: ticketFactorySpy })
+  const distributorTicketsServiceSpy = makeDistributorTicketsServiceSpy()
+  const sut = new OpenTicketUseCase({
+    ticketFactory: ticketFactorySpy,
+    distributorTicketsService: distributorTicketsServiceSpy
+  })
 
   return {
+    distributorTicketsServiceSpy,
     sut,
     ticketFactorySpy
   }
@@ -66,6 +96,30 @@ describe('Open Ticket Use Case', () => {
     await sut.execute({ subject: 'any_subject', body: 'any_body' })
     expect(ticketFactorySpy.subject).toBe('any_subject')
     expect(ticketFactorySpy.body).toBe('any_body')
+  })
+  test('should get technician with less open tickets', async () => {
+    const { sut, distributorTicketsServiceSpy } = makeSut()
+    distributorTicketsServiceSpy.technicians = [
+      {
+        name: 'technician_1',
+        openTickets: 3
+      },
+      {
+        name: 'technician_2',
+        openTickets: 4
+      },
+      {
+        name: 'technician_3',
+        openTickets: 1
+      }
+    ]
+    await sut.execute({ subject: 'any_subject', body: 'any_body' })
+    expect(distributorTicketsServiceSpy.technician).toEqual(
+      {
+        name: 'technician_2',
+        openTickets: 4
+      }
+    )
   })
   test.skip('should throw an error if TicketRepository is invalid', () => {
     const sut = new OpenTicketUseCase()
