@@ -25,10 +25,31 @@ const makeDateWith24HoursLate = () => {
 
 describe('Ticket Entity', () => {
   test('should contain id, subject, body, criation date and status', () => {
-    const { sut } = makeSut()
+    let sut = new TicketEntity({
+      id: 'any_id',
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: new Date(),
+      status: 'any_status'
+    })
 
     expect(sut).toEqual(expect.objectContaining({
       id: expect.any(String),
+      subject: expect.any(String),
+      body: expect.any(String),
+      createdAt: expect.any(Date),
+      status: expect.any(String)
+    }))
+
+    sut = new TicketEntity({
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: new Date(),
+      status: 'any_status'
+    })
+
+    expect(sut).toEqual(expect.objectContaining({
+      id: undefined,
       subject: expect.any(String),
       body: expect.any(String),
       createdAt: expect.any(Date),
