@@ -1,15 +1,10 @@
+const GenerateId = require('./generateId')
 const uuid = require('uuid')
 
 jest.mock('uuid', () => ({
   id: '',
   v4 () { return this.id }
 }))
-
-class GenerateId {
-  static generate () {
-    return uuid.v4()
-  }
-}
 
 describe('Generate Id', () => {
   test('should return an id', () => {
