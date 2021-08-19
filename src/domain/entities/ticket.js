@@ -18,6 +18,13 @@ class TicketEntity extends Entity {
   }
 
   static create ({ id, subject, body, createdAt = new Date(), status = OPEN_STATUS }) {
+    TicketEntity.validate({ id, subject, body, createdAt, status })
+    const ticket = new TicketEntity({ id, subject, body, createdAt, status })
+    return ticket
+  }
+
+  static validate (params) {
+    const { status = OPEN_STATUS } = params
     if (
       status !== OPEN_STATUS &&
       status !== LATE_STATUS &&
@@ -25,8 +32,6 @@ class TicketEntity extends Entity {
       status !== DOING_STATUS) {
       throw new DomainError('status')
     }
-    const ticket = new TicketEntity({ id, subject, body, createdAt, status })
-    return ticket
   }
 
   get slaHours () {
