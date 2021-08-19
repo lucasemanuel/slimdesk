@@ -11,7 +11,7 @@ class TicketEntity extends Entity {
   constructor ({ id, subject, body, createdAt, status }) {
     super({ id })
     Object.assign(this, { subject, body, createdAt, status })
-    if (this.isLate()) {
+    if (this.isLate) {
       this.status = LATE_STATUS
     }
     Object.freeze(this)
@@ -38,7 +38,7 @@ class TicketEntity extends Entity {
     return 24
   }
 
-  isLate () {
+  get isLate () {
     const currentDate = Date.now()
     const millisecondsLate = 1000 * 60 * 60 * this.slaHours
     const isLate = (this.createdAt.valueOf() + millisecondsLate) <= currentDate

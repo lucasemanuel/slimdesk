@@ -47,14 +47,14 @@ describe('Ticket Entity', () => {
       body: 'any_body',
       createdAt: makeDateWith24HoursLate()
     })
-    expect(sut.isLate()).toBeTruthy()
+    expect(sut.isLate).toBeTruthy()
   })
   test('should return false if ticket is not late', () => {
     const sut = TicketEntity.create({
       subject: 'any_subject',
       body: 'any_body'
     })
-    expect(sut.isLate()).toBeFalsy()
+    expect(sut.isLate).toBeFalsy()
   })
   test('should set late status if ticket is late', () => {
     const sut = new TicketEntity({
@@ -65,7 +65,7 @@ describe('Ticket Entity', () => {
     })
     expect(sut.status).toBe(TicketStatus.LATE_STATUS)
   })
-  test('should isLate method return false if ticket is resolved', () => {
+  test('should isLate return false if ticket is resolved', () => {
     const sut = new TicketEntity({
       id: 'any_id',
       subject: 'any_subject',
@@ -73,7 +73,7 @@ describe('Ticket Entity', () => {
       createdAt: makeDateWith24HoursLate(),
       status: TicketStatus.RESOLVED_STATUS
     })
-    expect(sut.isLate()).toBeFalsy()
+    expect(sut.isLate).toBeFalsy()
     expect(sut.status).toBe(TicketStatus.RESOLVED_STATUS)
   })
   test('should create an object with open_status if pass status like undefined', () => {
