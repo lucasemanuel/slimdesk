@@ -76,5 +76,15 @@ describe('Ticket Entity', () => {
     })
     expect(sut.status).toBe(TicketStatus.LATE_STATUS)
   })
-  test.todo('should isLate method return false if ticket is resolved')
+  test('should isLate method return false if ticket is resolved', () => {
+    const sut = new TicketEntity({
+      id: 'any_id',
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: makeDateWith24HoursLate(),
+      status: TicketStatus.RESOLVED_STATUS
+    })
+    expect(sut.isLate()).toBeFalsy()
+    expect(sut.status).toBe(TicketStatus.RESOLVED_STATUS)
+  })
 })

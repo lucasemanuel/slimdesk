@@ -14,8 +14,9 @@ class TicketEntity extends Entity {
   isLate () {
     const currentDate = Date.now()
     const millisecondsLate = 1000 * 60 * 60 * this.slaHours
+    const isLate = (this.createdAt.valueOf() + millisecondsLate) <= currentDate
 
-    return (this.createdAt.valueOf() + millisecondsLate) <= currentDate
+    return isLate && this.status !== TicketStatus.RESOLVED_STATUS
   }
 }
 
