@@ -1,22 +1,6 @@
+const DomainError = require('../errors/domainError')
 const TicketStatus = require('../constants/ticketStatus')
 const TicketEntity = require('./ticket')
-
-const makeSut = () => {
-  const date = new Date()
-
-  const sut = new TicketEntity({
-    id: 'any_id',
-    subject: 'any_subject',
-    body: 'any_body',
-    createdAt: date,
-    status: 'any_status'
-  })
-
-  return {
-    sut,
-    date
-  }
-}
 
 const makeDateWith24HoursLate = () => {
   const date = new Date()
@@ -58,13 +42,18 @@ describe('Ticket Entity', () => {
     }))
   })
   test('should return true if ticket is late', () => {
-    const { sut } = makeSut()
-    sut.createdAt = makeDateWith24HoursLate()
+    const sut = TicketEntity.create({
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: makeDateWith24HoursLate()
+    })
     expect(sut.isLate()).toBeTruthy()
   })
   test('should return false if ticket is not late', () => {
-    const { sut } = makeSut()
-    sut.createdAt = Date.now()
+    const sut = TicketEntity.create({
+      subject: 'any_subject',
+      body: 'any_body'
+    })
     expect(sut.isLate()).toBeFalsy()
   })
   test('should set late status if ticket is late', () => {
@@ -86,5 +75,47 @@ describe('Ticket Entity', () => {
     })
     expect(sut.isLate()).toBeFalsy()
     expect(sut.status).toBe(TicketStatus.RESOLVED_STATUS)
+  })
+  test('should create an object with open_status if pass status like undefined', () => {
+    const sut = TicketEntity.create({
+      id: 'any_id',
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: new Date()
+    })
+    expect(sut.status).toBe(TicketStatus.OPEN_STATUS)
+  })
+  test('should create an object with new instance Date if pass createdAt like undefined', () => {
+    const sut = TicketEntity.create({
+      id: 'any_id',
+      subject: 'any_subject',
+      body: 'any_body'
+    })
+    expect(sut.createdAt).toBeInstanceOf(Date)
+  })
+  test('should create an object with success if status are valid', () => {
+    const ticketStatus = [
+      TicketStatus.OPEN_STATUS,
+      TicketStatus.DOING_STATUS,
+      TicketStatus.RESOLVED_STATUS
+    ]
+    const data = {
+      subject: 'any_subject',
+      body: 'any_body'
+    }
+    for (const status of ticketStatus) {
+      const ticket = TicketEntity.create({ ...data, status })
+      expect(ticket).toBeInstanceOf(TicketEntity)
+    }
+  })
+  test('should throw an error if ticket status is invalid', () => {
+    const data = {
+      subject: 'any_subject',
+      body: 'any_body',
+      status: 'any_status'
+    }
+    expect(() => {
+      TicketEntity.create(data)
+    }).toThrow(DomainError)
   })
 })
