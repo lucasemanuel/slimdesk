@@ -1,3 +1,4 @@
+const TicketStatus = require('../constants/ticketStatus')
 const TicketEntity = require('./ticket')
 
 const makeSut = () => {
@@ -66,4 +67,14 @@ describe('Ticket Entity', () => {
     sut.createdAt = Date.now()
     expect(sut.isLate()).toBeFalsy()
   })
+  test('should set late status if ticket is late', () => {
+    const sut = new TicketEntity({
+      id: 'any_id',
+      subject: 'any_subject',
+      body: 'any_body',
+      createdAt: makeDateWith24HoursLate()
+    })
+    expect(sut.status).toBe(TicketStatus.LATE_STATUS)
+  })
+  test.todo('should isLate method return false if ticket is resolved')
 })
